@@ -3,7 +3,8 @@ import { createContext, useContext, useEffect, useReducer, useRef, useState } fr
 const HOST_API = "http://localhost:8080/api";
 
 const initialState = {
-  list: []
+  list: [],
+  item: {}
 };
 
 const Store = createContext(initialState)
@@ -11,9 +12,9 @@ const Store = createContext(initialState)
 const Form = () => {
   const formRef = useRef(null);
 
-  const{ dispatch} = useContext(Store);
+  const{ dispatch, state: {item}} = useContext(Store);
 
-  const [state, setState] = useState({});
+  const [state, setState] = useState(item);
 
   const onAdd = (event) => {
     event.preventDefault();
@@ -24,12 +25,14 @@ const Form = () => {
       isCompleted: false
     };
 
-    fetch(HOST_API+"/todo", {
+    fetch(HOST_API+"/todos", {
       method: "POST",
+      mode: 'cors',
       body: JSON.stringify(request),
       headers: {
         'Content-Type': 'application/json'
-      }
+      },
+      credentials: 'same-origin'
     })
     .then(response => response.json())
     .then((todo) => {
@@ -39,15 +42,47 @@ const Form = () => {
     });
   }
 
+  const onEdit = (event) => {
+    event.preventDefault();
+
+    const request = {
+      name: state.name,
+      id: item.id,
+      isCompleted: item.isCompleted
+    };
+
+    fetch(HOST_API+"/todos", {
+      method: "PUT",
+      mode: 'cors',
+      body: JSON.stringify(request),
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'same-origin'
+    })
+    .then(response => response.json())
+    .then((todo) => {
+      dispatch({ type: "update-item", item: todo});
+      setState({ name: ""});
+      formRef.current.reset();
+    });
+  }
+
   return <form ref={formRef}>
     <input 
       type='text'
       name='name'
+      defaultValue={item.name}
       onChange={(event) => {
         setState({ ...state, name: event.target.value })
       }}
     />
-    <button onClick={onAdd}>Agregar</button>
+    {
+      item.id && <button onClick={onEdit}>Actualizar</button>
+    }
+    {
+      !item.id && <button onClick={onAdd}>Agregar</button>
+    }
   </form>
 }
 
@@ -61,6 +96,19 @@ const List = () => {
       dispatch({type: 'update-list', list})
     })
   }, [state.list.length, dispatch]);
+
+  const onDelete = (id) => {
+    fetch(HOST_API + "/" + id + "/todos", {
+      method: "DELETE"
+    })
+    .then((list) => {
+      dispatch({ type: "delete-item", id})
+    })
+  };
+
+  const onEdit = (todo) => {
+    dispatch({type: "edit-item", item: todo});
+  }
 
   return <div>
     <table>
@@ -77,7 +125,9 @@ const List = () => {
             return <tr key={todo.id}>
               <td>{todo.id}</td>
               <td>{todo.name}</td>
-              <td>{todo.isCompleted}</td>
+              <td>{todo.isCompleted === true ? "SI" : "NO"}</td>
+              <td><button onClick={() => onDelete(todo.id)}>Eliminar</button></td>
+              <td><button onClick={() => onEdit(todo)}>Editar</button></td>
             </tr>
           })
         }
@@ -86,10 +136,27 @@ const List = () => {
   </div>
 }
 
+
+
 function reducer(state, action) {
   switch (action.type) {
+    case 'update-item':
+      const listUpdateEdit = state.list.map((item) => {
+        if(item.id === action.item.id){
+          return action.item;
+        }
+        return item;
+      })
+      return { ...state, list: listUpdateEdit, item: {}}
+    case 'delete-item':
+      const listUpdate = state.list.filter((item) => {
+        return item.id !== action.id;
+      })
+      return { ...state, list: listUpdate}
     case 'update-list':
       return { ...state, list: action.list }
+    case 'edit-item':
+      return { ...state, item: action.item }
     case 'add-item':
       const newList = state.list;
       newList.push(action.item);
