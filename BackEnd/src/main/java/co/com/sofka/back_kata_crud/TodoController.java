@@ -29,7 +29,7 @@ public final class TodoController {
     }
 
     @DeleteMapping(value = "api/{id}/todos")
-    public void eliminar(Long id){
+    public void eliminar(@PathVariable("id") Long id){
         service.eliminar(id);
     }
 
