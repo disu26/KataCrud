@@ -10,8 +10,10 @@ public final class Todo {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+
     private String name;
-    private Boolean isCompleted;
+
+    private boolean isCompleted;
 
     public Long getId() {
         return id;
@@ -29,7 +31,7 @@ public final class Todo {
         this.name = name;
     }
 
-    public Boolean getCompleted() {
+    public boolean getCompleted() {
         return isCompleted;
     }
 

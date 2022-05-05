@@ -4,7 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000",  methods= {RequestMethod.GET,RequestMethod.POST,RequestMethod.DELETE,RequestMethod.PUT,RequestMethod.PATCH})
+@CrossOrigin(origins = "*",  methods= {RequestMethod.GET,RequestMethod.POST,RequestMethod.DELETE,RequestMethod.PUT,RequestMethod.PATCH})
 public final class TodoController {
 
     @Autowired
@@ -23,6 +23,15 @@ public final class TodoController {
     @PutMapping(value = "api/todos")
     public Todo update(@RequestBody Todo todo){
         if (todo.getId() != null){
+            return service.save(todo);
+        }
+        throw new RuntimeException("No existe el id para actualizar");
+    }
+
+    @PutMapping(value = "api/todosComplete")
+    public Todo updateComplete(@RequestBody Todo todo){
+        if (todo.getId() != null){
+            todo.setCompleted(true);
             return service.save(todo);
         }
         throw new RuntimeException("No existe el id para actualizar");
