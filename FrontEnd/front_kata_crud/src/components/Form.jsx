@@ -2,6 +2,10 @@ import React, { useState, useContext, useRef } from "react";
 import { HOST_API } from "../App";
 import { Store } from "../App";
 
+/**
+ * Componente formulario donde se ingresarán los todos.
+ * @returns 
+ */
 const Form = () => {
   const formRef = useRef(null);
 
@@ -12,6 +16,10 @@ const Form = () => {
 
   const [state, setState] = useState(item);
 
+  /**
+   * Método para añadir un todo.
+   * @param {*} event 
+   */
   const onAdd = (event) => {
     event.preventDefault();
 
@@ -38,6 +46,10 @@ const Form = () => {
       });
   };
 
+  /**
+   * Editar un todo.
+   * @param {*} event 
+   */
   const onEdit = (event) => {
     event.preventDefault();
 

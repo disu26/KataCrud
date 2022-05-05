@@ -2,9 +2,16 @@ import React, { useContext, useEffect } from "react";
 import { HOST_API } from "../App";
 import { Store } from "../App";
 
+/**
+ * Componente Lista que muestra los todos de la base de datos.
+ * @returns 
+ */
 const List = () => {
   const { dispatch, state } = useContext(Store);
 
+  /**
+   * Se usa para obtener los todos.
+   */
   useEffect(() => {
     fetch(HOST_API + "/todos")
       .then((response) => response.json())
@@ -13,6 +20,10 @@ const List = () => {
       });
   }, [state.list.length, dispatch]);
 
+  /**
+   * Eliminar un todo.
+   * @param {*} id 
+   */
   const onDelete = (id) => {
     fetch(HOST_API + "/" + id + "/todos", {
       method: "DELETE",
@@ -21,6 +32,10 @@ const List = () => {
     });
   };
 
+  /**
+   * Marcar un todo como completado.
+   * @param {*} todo 
+   */
   const onComplete = (todo) => {
     const request = {
       name: todo.name,
@@ -45,6 +60,10 @@ const List = () => {
       });
   };
 
+  /**
+   * Habilitar el campo para edición.
+   * @param {*} todo 
+   */
   const onEdit = (todo) => {
     dispatch({ type: "edit-item", item: todo });
   };
